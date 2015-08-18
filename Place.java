@@ -1,5 +1,5 @@
 
-package autocomplete;
+package rome2rioauto;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,10 +12,10 @@ public class Place {
     private String longName;
     private String shortName;
     private String canonicalName;
-    private double lat;
-    private double lng;
-    private long rad;
-    private long special;
+    private Double lat;
+    private Double lng;
+    private Double rad;
+    private Double special;
     private String countryName;
     private String countryCode;
     private String regionName;
@@ -99,7 +99,7 @@ public class Place {
      * @return
      *     The lat
      */
-    public double getLat() {
+    public Double getLat() {
         return lat;
     }
 
@@ -108,7 +108,7 @@ public class Place {
      * @param lat
      *     The lat
      */
-    public void setLat(double lat) {
+    public void setLat(Double lat) {
         this.lat = lat;
     }
 
@@ -117,7 +117,7 @@ public class Place {
      * @return
      *     The lng
      */
-    public double getLng() {
+    public Double getLng() {
         return lng;
     }
 
@@ -126,7 +126,7 @@ public class Place {
      * @param lng
      *     The lng
      */
-    public void setLng(double lng) {
+    public void setLng(Double lng) {
         this.lng = lng;
     }
 
@@ -135,7 +135,7 @@ public class Place {
      * @return
      *     The rad
      */
-    public long getRad() {
+    public Double getRad() {
         return rad;
     }
 
@@ -144,7 +144,7 @@ public class Place {
      * @param rad
      *     The rad
      */
-    public void setRad(long rad) {
+    public void setRad(Double rad) {
         this.rad = rad;
     }
 
@@ -153,7 +153,7 @@ public class Place {
      * @return
      *     The special
      */
-    public long getSpecial() {
+    public Double getSpecial() {
         return special;
     }
 
@@ -162,7 +162,7 @@ public class Place {
      * @param special
      *     The special
      */
-    public void setSpecial(long special) {
+    public void setSpecial(Double special) {
         this.special = special;
     }
 

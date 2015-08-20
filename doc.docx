@@ -96,11 +96,10 @@ Parts of list view display:
 For a custom list view:
 •	View will be populated by adapter extracting data from the Data Source. The adapter will be responsible for assigning the custom layout that needed for ListView. View holders will be used to make the performance better.
 How does it work?
-We set adapters for the ListView which gets the data as an arraylist. The code might call findViewById() frequently when ListView is scrolled, which will in turn slow the performance. Even if the Adapter returns inflated view for recycling, the code still needs to look up the element and update them. To avoid all these “View Holder” design pattern is used. A ViewHolder object will store each component view inside the tag field of the Layout, so they can be immediately accessed without search.
-The pattern i
-View Holder pattern is about reducing the number of findViewById() calls in the adapter’s getView(). In practice, the View Holder is a lightweight inner class that holds direct references to all inner views from a row. You store it as a tag in the row’s view after inflating it.
-our code might call findViewById() frequently during the scrolling of ListView, which can slow down performance. Even when the Adapter returns an inflated view for recycling, you still need to look up the elements and update them. A way around repeated use of findViewById() is to use the "view holder" design pattern.
-A ViewHolder object stores each of the component views inside the tag field of the Layout, so you can immediately access them without the need to look them up repeatedly. First, you need to create a class to hold your exact set of views.
+We set adapters for the ListView which gets the data as an arraylist. The ListView uses the recycler to keep adding views below or above. Recycler adds the active views to recyclable pool once it gets off the screen. So at a particular point of time there are only few views in memory even if adapter has hundreds of item.
+In this process of scrolling the code might call findViewById() frequently, which will in turn slow the performance. Even if the Adapter returns inflated view for recycling, the code still needs to look up the element and update them. To avoid all these “View Holder” design pattern is used. A ViewHolder object will store each component view inside the tag field of the Layout, so they can be immediately accessed without search.
+ViewHolder will be a lightweight inner class that will hold references to all inner views from a row. It is stored as a tag in the row’s view after inflating it. We will get to know about it more as we build the application.
+
 
 Let’s start with simple API call. By the end of this document we would be able to –
 •	Know ListView
@@ -133,6 +132,8 @@ We need a class structure to hold de serialized JSON data. Add a folder to the p
  
 Model Classes–
 Running.Java- The initial entry point of JSON to POJO:
+We have information like trainnumber and List of type Route class(definded below) which will be used later. Respective getter and setter methods are also present.
+
 package com.ishan387.models;
 
 import java.util.ArrayList;
@@ -249,7 +250,9 @@ public class Running {
 
 }
 
-Route.Java- To hold the route informations
+Route.Java- To hold the route information:
+Now each route from the list returned by running class will have –
+Station , departure/arrival timings, status etc. Respective getter and setter methods as well.
 package com.ishan387.models;
 
 import java.util.HashMap;
@@ -463,8 +466,7 @@ public class HttpAct extends Activity {
                 Running.class);*/
 
          if (rs != null) {
-        
-		    setDisplayList(rs);
+          setDisplayList(rs);
 
 
         }
@@ -484,8 +486,6 @@ public class HttpAct extends Activity {
             r.add(rl.get(i));
         }
 
-
-
         MyCustomAdapter dataAdapter = new MyCustomAdapter(this,
                 R.layout.run, r);
         ListView listView = (ListView) findViewById(R.id.listView1);
@@ -497,13 +497,13 @@ public class HttpAct extends Activity {
 
     private class MyCustomAdapter extends ArrayAdapter<Route> {
 
-        private ArrayList<Route> countryList;
+        private ArrayList<Route> routeList;
 
         public MyCustomAdapter(Context context, int textViewResourceId,
-                               ArrayList<Route> countryList) {
-            super(context, textViewResourceId, countryList);
-            this.countryList = new ArrayList<Route>();
-            this.countryList.addAll(countryList);
+                               ArrayList<Route> cList) {
+            super(context, textViewResourceId, cList);
+            this. routeList = new ArrayList<Route>();
+            this. routeList.addAll(cList);
         }
 
         private class ViewHolder {
@@ -514,7 +514,10 @@ public class HttpAct extends Activity {
             TextView SchArrival;
             TextView SchDeparture;
         }
-        @Override
+
+        
+
+		@Override
         public View getView(int position, View convertView, ViewGroup parent) {
 
             ViewHolder holder = null;
@@ -538,12 +541,12 @@ public class HttpAct extends Activity {
                 holder = (ViewHolder) convertView.getTag();
             }
 
-            Route country = countryList.get(position);
-            holder.station.setText(country.getStation());
-            holder.Accarival.setText(country.getActarr());
-            holder.contAccDeparture.setText(country.getActdep());
-            holder.status.setText(country.getStatus());
-            holder.SchArrival.setText(country.getScharr());
+            Route c = routeList.get(position);
+            holder.station.setText(c.getStation());
+            holder.Accarival.setText(c.getActarr());
+            holder.contAccDeparture.setText(c.getActdep());
+            holder.status.setText(c.getStatus());
+            holder.SchArrival.setText(c.getScharr());
             holder.SchDeparture.setText(country.getSchdep());
 
             return convertView;
@@ -558,21 +561,23 @@ public class HttpAct extends Activity {
 
 Breaking the Code-
 •	Section 1 
-We have declared a collection “_mList” of type “Main”. We have a public property as “MList” which has get/set methods.
-Note that the collection is an Observable Collection. An Observable Collection is a collection which implements interfaces: INotifyCollectionChanged, INotifyPropertyChanged. As such it is useful if the application wants to know when the collection has changed. An event is triggered whenever there is a change in collection data.
-In our MList we are calling RaisePropertyChanged whenever we set the value for _mList.
-Recalling our Model Class structure, we have a class named “Main” which has temp, humidity and other relevant properties in it. 
+Once the JSON is downloaded as response from api call , in our case it’s the testresult string here. We ask the gson library to break the testresult using fromjson method and put it in running.class. Running class is the model class structure which has all the required variables and getter/setter methods. Now rs (object of running class) has all the data that came with testresult. We call a method setDisplayList with passing rs object.
 
 •	Section 2
-This part of the code helps in binding design time data.
+In setDisplayList we create an list of type Route and add all the list elements of type route from rs object. The rs object as getter method to get the list of list which can be seen the model class.
+Then we create an adapter from custom adapter class which will be covered in next section. We pass the adapter layout(that’s each element row in the list) and the list. As the control returns back to setDisplayList again we set the adapter to ListView.
+
 
 •	Section 3
-If the application is not in design time and is running for real, this part will execute. We have created a new instance for our collection and have created a WebClient named “client”. 
-Before calling the API with WebClient we make sure we have a handler once the download is complete and results are returned. We named it Client_DownloadStringCompleted. We call DownloadStringAsync method with our API. As it’s an async method it won’t be blocking the calling thread and the UI will be responsive while webclient calls the API. 
+This is the constructor for customadapter class.
 
 •	Section 4
-Once the download is complete the control goes to Client_DownloadStringCompleted function. Here we declare variable “result” of type RootObject. RootObject is a class in Model which has property for all the available classes. We use the method from Json.NET library to de-serialize the JSON into RootObject type. We add an item of type “Main” in MList collection.
-Note that the item in collection will be having data of type “Main” which indeed has properties for temperature, humidity, pressure etc.
+This is ViewHolder class which holds references to all the inner views from a row. That’s all the element in a single item of listview.
+•	Section 5
+This is the part where the getView function inflates the run .xml layout and gives the textview’s their id’s from it for the first run. Run.xml is the layout for each item in a listview. We have here 6 textviews from view holder class. So each item in our list view will have 6 elements inside them.
+•	 Section 6
+Once the textview get their id’s , this section set the texts of all the elements using getter methods of route class. Station textview is set to c.getstation() which returns the station name.
+Like wise for rest of the text views and returns the view.
 
 View- 
 
@@ -607,6 +612,7 @@ httpact
 
 
 </LinearLayout>
+
 
 
 

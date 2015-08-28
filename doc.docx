@@ -574,7 +574,7 @@ This is the constructor for customadapter class.
 •	Section 4
 This is ViewHolder class which holds references to all the inner views from a row. That’s all the element in a single item of listview.
 •	Section 5
-This is the part where the getView function inflates the run .xml layout and gives the textview’s their id’s from it for the first run. Run.xml is the layout for each item in a listview. We have here 6 textviews from view holder class. So each item in our list view will have 6 elements inside them.
+This is the part where the getView function inflates the run .xml layout and gives the textview’s their id’s from it for the first run. Run.xml is the layout for each item in a listview. We have here 6 textviews from view holder class. So each item in our list view will have 6 elements with value from json inside them.
 •	 Section 6
 Once the textview get their id’s , this section set the texts of all the elements using getter methods of route class. Station textview is set to c.getstation() which returns the station name.
 Like wise for rest of the text views and returns the view.
@@ -589,20 +589,6 @@ httpact
     tools:context="com.ishan387.syt.HttpAct"
     android:orientation="vertical"
     android:background="@color/back">
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="1dp"
-        android:background="@color/grey">
-        <TextView
-            android:id="@+id/statustext"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-
-            android:text=""/>
-
-    </LinearLayout>
-
 
 
     <ListView android:id="@+id/listView1" android:layout_width="match_parent"
@@ -614,7 +600,8 @@ httpact
 </LinearLayout>
 
 
-
+Section 1:
+This is the result page where we have given a listview inside linear layout to show the results
 
 Run xml –
 
@@ -749,16 +736,7 @@ Run xml –
 
 Breaking the XML – 
 •	Section 1
-We are setting of the data context for the Grid to Main , which the ViewModelLocator will fetch as MainViewModel. Setting up data context tells my program that MainViewModel will be my default source for binding controls.
-
-•	Section 2
-We frame the Grid into rows and columns dividing it into 3 rows and 2 columns.
-
-•	Section 3 
-We are adding text blocks in our grid here. With Grid.Row and Grid.Column property we can arrange the text blocks in any row/column that we had defined earlier. The Text="{Binding MList[0].temp}" binds the temp property for first item of MList. We can also bind by selecting the control then pressing F4 which will bring property window for the control, there we can select create data binding for text property of the control. Here’s a screen shot of binding-
- 
-
-
+This is the layout for each row in the ListView. Elements in each row will be arranged according to this layout. This layout is set to each row in convertView section 5 of mainview class. A single row of the list view will have texviews to hold data from json arranged in a relative layout as shown below.
 
  
 MainPage view
